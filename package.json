@@ -1,0 +1,30 @@
+{
+    "name": "discord-bot-boilerplate",
+    "version": "1.0.0",
+    "main": "main.js",
+    "bin": "main.js",
+    "scripts": {
+        "start": "node .",
+        "dev": "nodemon .",
+        "build": "pkg ."
+    },
+    "author": "Joaquin Giordano <joaquin_giordano@outlook.com>",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "@discordjs/rest": "^0.5.0",
+        "discord-api-types": "^0.36.1",
+        "discord.js": "^13.8.1"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.19",
+        "pkg": "^5.7.0"
+    },
+    "pkg": {
+        "outputPath": "dist",
+        "scripts": "commands/**/*.js",
+        "assets": [
+            "config.json"
+        ]
+    }
+}
