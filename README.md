@@ -65,3 +65,31 @@ const init = (interaction, client) => {
 
 module.exports = { init, description }
 ```
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Run the bot
+
+If you want to run the bot just write on your console
+
+```bash
+npm start
+```
+
+If you want the bot to watch the changes and reload every time you modify a file write on your console
+
+```bash
+npm run dev
+```
+
+## Build and create an executable
+
+If you want to create an executable run
+
+```bash
+npm run build
+```
