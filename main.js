@@ -24,6 +24,7 @@ client.once('ready', () => {
                 name: file.split('.')[0],
                 description: commandTmp[i].description,
                 init: commandTmp[i].init,
+                options: commandTmp[i].options,
             },
         ]
     })
