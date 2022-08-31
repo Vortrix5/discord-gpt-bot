@@ -9,7 +9,14 @@ const path = require('path')
 let commandTmp = []
 let commands = []
 
-const { token } = require('./config.json')
+require('dotenv').config({
+    path: path.join(__dirname, '.env'),
+})
+
+const token =
+    process.env.NODE_ENV === 'development'
+        ? process.env.TOKEN_DEV
+        : process.env.TOKEN_PROD
 
 client.once('ready', () => {
     console.log('Bot Ready!')

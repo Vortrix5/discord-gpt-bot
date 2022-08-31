@@ -1,11 +1,12 @@
 {
     "name": "discord-bot-boilerplate",
-    "version": "1.1.0",
-    "main": "main.js",
-    "bin": "main.js",
+    "version": "1.2.0",
+    "main": "index.js",
+    "bin": "index.js",
     "scripts": {
-        "start": "node .",
-        "dev": "nodemon .",
+        "start": "cross-env NODE_ENV=production NODE_NO_WARNINGS=1 node . ",
+        "dev": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 node .",
+        "dev:watch": "cross-env NODE_ENV=development NODE_NO_WARNINGS=1 nodemon .",
         "build": "pkg ."
     },
     "author": "Joaquin Giordano <joaquin_giordano@outlook.com>",
@@ -14,9 +15,11 @@
     "dependencies": {
         "@discordjs/rest": "^0.5.0",
         "discord-api-types": "^0.36.1",
-        "discord.js": "^13.8.1"
+        "discord.js": "^13.8.1",
+        "dotenv": "^16.0.2"
     },
     "devDependencies": {
+        "cross-env": "^7.0.3",
         "nodemon": "^2.0.19",
         "pkg": "^5.7.0"
     },
@@ -24,7 +27,7 @@
         "outputPath": "dist",
         "scripts": "commands/**/*.js",
         "assets": [
-            "config.json"
+            ".env"
         ]
     }
 }
