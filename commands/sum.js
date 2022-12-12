@@ -1,5 +1,6 @@
 const DiscordJS = require('discord.js')
-const NUMBER = DiscordJS.Constants.ApplicationCommandOptionTypes.NUMBER
+const { ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
+const NUMBER = ApplicationCommandOptionType.Number
 
 const description = 'Sum two numbers'
 

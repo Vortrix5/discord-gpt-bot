@@ -1,7 +1,7 @@
 const { REST } = require('@discordjs/rest')
-const { Client, Intents } = require('discord.js')
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const { Routes } = require('discord-api-types/v9')
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] })
+const client = new Client({ intents: [GatewayIntentBits.Guilds], partials: [Partials.Channel] });
 
 const fs = require('fs')
 const path = require('path')
