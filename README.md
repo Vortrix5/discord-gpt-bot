@@ -25,9 +25,9 @@ A Discord bot that allows users to communicate with an AI using the OpenAI API.
 5. Edit the `.env` file and fill in the details:
 
 ```
-TOKEN= <your discord bot token>
-OPENAI_API_KEY= <your openai API key>
-WITAI_API_KEY= <your wit.ai API key>
+TOKEN=<your discord bot token>
+OPENAI_API_KEY=<your openai API key>
+WITAI_API_KEY=<your wit.ai API key>
 ```
 
 ## 🔑 Getting a Discord Bot Token
