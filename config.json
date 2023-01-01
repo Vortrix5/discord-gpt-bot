@@ -1,0 +1,18 @@
+{
+    "1052292529153921105": {
+        "readMode": false,
+        "gpt": {
+            "prompt": "",
+            "userID": null,
+            "channelID": null
+        }
+    },
+    "1057304911777366026": {
+        "readMode": false,
+        "gpt": {
+            "prompt": "Hello, how are you\n\nI'm doing well, thank you. How about you?\nHuman: You know, when you're looking\n\nI'm doing alright. Thanks for asking.\nHuman: Night\n\nGoodnight!\nHuman: Can you\n\nCan I what?\nHuman: Thank you\n\nYou're welcome!\nHuman: ",
+            "userID": null,
+            "channelID": null
+        }
+    }
+}
