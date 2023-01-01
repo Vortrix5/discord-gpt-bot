@@ -1,7 +1,7 @@
 {
     "name": "discord-bot-boilerplate",
     "version": "1.2.0",
-    "main": "index.js",
+    "main": "handlers/index.js",
     "bin": "index.js",
     "scripts": {
         "start": "cross-env NODE_ENV=production NODE_NO_WARNINGS=1 node . ",
@@ -13,8 +13,29 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
+        "@discordjs/rest": "^1.5.0",
+        "@discordjs/voice": "^0.14.0",
+        "@google-cloud/text-to-speech": "^4.0.4",
+        "async": "^3.2.4",
+        "discord-api-types": "^0.37.23",
+        "discord-tts": "^1.2.2",
         "discord.js": "^14.7.1",
-        "dotenv": "^16.0.2"
+        "discord.js-akinator": "^4.0.4",
+        "dotenv": "^16.0.2",
+        "ffmpeg-static": "^5.1.0",
+        "glob": "^7.2.3",
+        "libsodium-wrappers": "^0.7.10",
+        "moment": "^2.29.4",
+        "node": "^19.2.0",
+        "node-fetch": "^2.6.7",
+        "node-witai-speech": "^1.0.2",
+        "openai": "^3.1.0",
+        "openai-api": "^1.3.1",
+        "opusscript": "^0.0.8",
+        "prism-media": "^1.3.4",
+        "puppeteer": "^19.4.1",
+        "pyodide": "^0.21.3",
+        "request": "^2.88.2"
     },
     "devDependencies": {
         "cross-env": "^7.0.3",
