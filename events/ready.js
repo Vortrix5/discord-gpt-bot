@@ -64,6 +64,7 @@ const init = async (client) => {
         config[Guilds[i]] = {
             readMode: false,
             gpt: {
+                voice:"Emma",
                 prompt: "",
                 userID: null,
                 channelID: null

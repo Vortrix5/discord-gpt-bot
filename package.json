@@ -18,7 +18,6 @@
         "@google-cloud/text-to-speech": "^4.0.4",
         "async": "^3.2.4",
         "discord-api-types": "^0.37.23",
-        "discord-tts": "^1.2.2",
         "discord.js": "^14.7.1",
         "discord.js-akinator": "^4.0.4",
         "dotenv": "^16.0.2",

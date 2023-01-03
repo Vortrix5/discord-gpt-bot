@@ -80,6 +80,8 @@ const run = async (interaction, client) => {
         if (!voiceConnection) {
             await interaction.editReply("Voice Chat not running or already stopped.")
         } else {
+            config[guildID].gpt.prompt = '';
+            await fs.writeFileSync(require.resolve('../../config.json'), JSON.stringify(config, null, 4));
             await voiceConnection.destroy();
             await interaction.editReply("Voice Chat successfully stopped.");
         }

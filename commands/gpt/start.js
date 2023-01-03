@@ -29,12 +29,10 @@ const {
     joinVoiceChannel,
     entersState,
     createAudioResource,
-    StreamType, getVoiceConnection
+    StreamType, getVoiceConnection, AudioPlayerStatus
 } = require("@discordjs/voice");
 const Transcriber = require("../../handlers/transcriber");
 const {runGPT} = require("../../handlers/gpt-handler");
-const discordTTS = require("discord-tts");
-const {setReadMode} = require("../../handlers/index.js");
 const fs = require("fs");
 
 const STRING = ApplicationCommandOptionType.String
@@ -62,90 +60,67 @@ const options = [
     }
 ]
 //Voice Chat
-let audioPlayer = new AudioPlayer();
 const transcriber = new Transcriber(process.env.WITAI_API_KEY);
 
-async function setCredentials(config,guildID ,userID, channelID) {
-     config[guildID] = {
-        readMode: true,
-        gpt: {
-            prompt: "",
-            userID: userID,
-            channelID: channelID
-        }
-    }
+async function setCredentials(config, guildID, userID, channelID) {
+    config[guildID].readMode = true;
+    config[guildID].gpt.userID = userID;
+    config[guildID].gpt.channelID = channelID;
     await fs.writeFileSync(require.resolve('../../config.json'), JSON.stringify(config, null, 4));
 }
 
 const run = async (interaction, client) => {
-    let config= JSON.parse(fs.readFileSync(require.resolve('../../config.json')));
-    let userID, channelID, guildID=interaction.guildId;
-    const type = interaction.options.getString('type');
+    let config = JSON.parse(fs.readFileSync(require.resolve('../../config.json')));
 
+    let userID, channelID, guildID = interaction.guildId;
+    const type = interaction.options.getString('type');
     await interaction.deferReply();
+
+    const category = client.channels.cache.find(
+        channel => channel.type === ChannelType.GuildCategory
+            && channel.guildId === interaction.guild.id
+            && channel.name === 'chats');
+    if (!category) {
+        await interaction.guild.channels.create({
+            name: 'ai-chats',
+            type: ChannelType.GuildCategory
+        })
+    }
     if (type === 'text') {
         userID = interaction.member.id;
         if (config[guildID].readMode) {
             await interaction.editReply("AI Chat already running in <#" + config[guildID].gpt.channelID + ">")
         } else {
-            const category = client.channels.cache.find(
-                channel => channel.type === ChannelType.GuildCategory
-                    && channel.guildId === interaction.guild.id
-                    && channel.name === 'chats');
-            if (!category) {
-                await interaction.guild.channels.create({
-                    name: 'chats',
-                    type: ChannelType.GuildCategory
-                }).then(async (category) => {
-                    await interaction.guild.channels.create({
-                        name: interaction.member.displayName + '-chat',
-                        type: ChannelType.GuildText,
-                        parent: category
-                    }).then(async (channel) => {
-                        channelID = channel.id;
-                        await console.log(`Created new channel: ${channel}`)
-                        await channel.send(`Hello and welcome to your chat <@${interaction.member.id}>. Please feel free to ask me any question.`);
-                    })
+            await interaction.guild.channels.create({
+                name: interaction.member.displayName + '-chat',
+                type: ChannelType.GuildText,
+                parent: category.id
+            })
+                .then(async channel => {
+                    channelID = channel.id;
+                    await console.log(`Created new channel: ${channel}`)
+                    await channel.send(`Hello and welcome to your chat <@${interaction.member.id}>. Please feel free to ask me any question.`);
                 })
-                await setCredentials(config,interaction.guildId,userID, channelID);
-                await interaction.editReply("AI Chat successfully started.");
-            } else {
-                await interaction.guild.channels.create({
-                    name: interaction.member.displayName + '-chat',
-                    type: ChannelType.GuildText,
-                    parent: category.id
-                })
-                    .then(async channel => {
-                        channelID = channel.id;
-                        await console.log(`Created new channel: ${channel}`)
-                        await channel.send(`Hello and welcome to your chat <@${interaction.member.id}>. Please feel free to ask me any question.`);
-                    })
-                    .catch(console.error);
-                await setCredentials(config,interaction.guildId,userID, channelID);
-                await interaction.editReply("AI Chat channel successfully created.");
-            }
+                .catch(console.error);
+            await setCredentials(config, interaction.guildId, userID, channelID);
+            await interaction.editReply("AI Chat channel successfully created.");
         }
-        //Voice Chat
-    } else if (type === 'voice') {
+    }
+
+    //Voice Chat
+    else if (type === 'voice') {
+        let audioPlayer = new AudioPlayer();
         let response;
         let voiceConnection = getVoiceConnection(interaction.guildId);
-        let channel = client.channels.cache.find(
-            channel => channel.name === 'AI Chat'
-                && channel.guildId === interaction.guild.id
-                && channel.type === ChannelType.GuildVoice);
-        if(!channel){
-            await interaction.guild.channels.create({
-                name: 'AI Chat',
-                type: ChannelType.GuildVoice
-            })
+        let channel = client.channels.cache.find((channel) =>
+            channel.guildId === interaction.guild.id
+            && channel.type === ChannelType.GuildVoice
+            && channel.members.has(interaction.member.id));
+        if (!channel) {
+            return interaction.editReply("You must be in a voice channel to start a voice chat.");
         }
-        channel = client.channels.cache.find(
-            channel => channel.name === 'AI Chat'
-                && channel.guildId === interaction.guild.id
-                && channel.type === ChannelType.GuildVoice);
 
         if (!voiceConnection || voiceConnection?.state.status === VoiceConnectionStatus.Disconnected) {
-            //await console.log(channel);
             voiceConnection = joinVoiceChannel({
                 channelId: channel.id,
                 guildId: interaction.guildId,
@@ -155,28 +130,34 @@ const run = async (interaction, client) => {
             });
             voiceConnection = await entersState(voiceConnection, VoiceConnectionStatus.Connecting, 5_000);
             await interaction.editReply("Successfully started listening.");
-        }else{
+        } else {
             await interaction.editReply("AI Chat already running");
         }
         voiceConnection.receiver.speaking.on("start", (userId) => {
+            if (audioPlayer.state.status === AudioPlayerStatus.Playing) return;
             transcriber.listen(voiceConnection.receiver, userId, client.users.cache.get(userId)).then(async (data) => {
                 if (!data.transcript.text) return;
                 let text = data.transcript.text;
                 console.log(text, userId);
                 try {
-                    response = await runGPT(guildID,text);
+                    response = await runGPT(guildID, text);
                 } catch (error) {
                     await interaction.editReply("There was an error while speaking to ChatGPT. Please try again later.");
                     await console.log(error);
                 }
-                const stream = discordTTS.getVoiceStream(response);
-                const audioResource = createAudioResource(stream, {
+                let url;
+                if (response.length > 600) {
+                    url = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(config[guildID].gpt.voice)}&text=${encodeURIComponent("I am sorry, the response is larger than 600 characters.")}`;
+                } else {
+                    url = `https://api.streamelements.com/kappa/v2/speech?voice=${encodeURIComponent(config[guildID].gpt.voice)}&text=${encodeURIComponent(response)}`;
+                }
+                const audioResource = await createAudioResource(url, {
                     inputType: StreamType.Arbitrary,
                     inlineVolume: true
                 });
-                if (voiceConnection.state.status !== VoiceConnectionStatus.Disconnected && voiceConnection.joinConfig.guildId=== interaction.guildId) {
-                    voiceConnection.subscribe(audioPlayer);
-                    audioPlayer.play(audioResource);
+                if (voiceConnection.state.status !== VoiceConnectionStatus.Disconnected && voiceConnection.joinConfig.guildId === interaction.guildId) {
+                    await voiceConnection.subscribe(audioPlayer);
+                    await audioPlayer.play(audioResource);
                 }
             });
         });
