@@ -14,7 +14,8 @@ A Discord bot that allows users to communicate with an AI using the OpenAI API.
 - `/start [text/voice]`: Creates a text/voice channel to start a conversation with the bot
 - `/stop [text/voice]`: Destroys the connection with the bot
 - `/clear`: Clears the conversation prompt
-- `/ask`: Asks one question to the bot, no conversation
+- `/voice [voice]`: Changes the TTS voice by choosing one from the options
+- `/ask [question]`: Asks one question to the bot, no conversation
 
 ## 💾 Installation
 
