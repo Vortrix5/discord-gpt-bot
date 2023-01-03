@@ -129,16 +129,21 @@ const run = async (interaction, client) => {
     } else if (type === 'voice') {
         let response;
         let voiceConnection = getVoiceConnection(interaction.guildId);
-        const channel = client.channels.cache.find(
+        let channel = client.channels.cache.find(
             channel => channel.name === 'AI Chat'
                 && channel.guildId === interaction.guild.id
                 && channel.type === ChannelType.GuildVoice);
         if(!channel){
-            await interaction.guildId.channels.create({
+            await interaction.guild.channels.create({
                 name: 'AI Chat',
                 type: ChannelType.GuildVoice
             })
         }
+        channel = client.channels.cache.find(
+            channel => channel.name === 'AI Chat'
+                && channel.guildId === interaction.guild.id
+                && channel.type === ChannelType.GuildVoice);
+
         if (!voiceConnection || voiceConnection?.state.status === VoiceConnectionStatus.Disconnected) {
             //await console.log(channel);
             voiceConnection = joinVoiceChannel({
