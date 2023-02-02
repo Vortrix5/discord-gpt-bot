@@ -92,7 +92,7 @@ const run = async (interaction, client) => {
             await interaction.editReply("AI Chat already running in <#" + config[guildID].gpt.channelID + ">")
         } else {
             await interaction.guild.channels.create({
-                name: interaction.member.displayName + '-chat',
+                name: 'ai-chat',
                 type: ChannelType.GuildText,
                 parent: category.id
             })
@@ -110,6 +110,7 @@ const run = async (interaction, client) => {
     //Voice Chat
     else if (type === 'voice') {
         let audioPlayer = new AudioPlayer();
+        let stopWords=["leave","stop","exit","quit","bye","goodbye","ciao"];
         let response;
         let voiceConnection = getVoiceConnection(interaction.guildId);
         let channel = client.channels.cache.find((channel) =>
@@ -138,7 +139,15 @@ const run = async (interaction, client) => {
             transcriber.listen(voiceConnection.receiver, userId, client.users.cache.get(userId)).then(async (data) => {
                 if (!data.transcript.text) return;
                 let text = data.transcript.text;
-                console.log(text, userId);
+                let user = client.users.cache.get(userId);
+                interaction.channel.send(`${user.username}: `+text);
+                if (stopWords.some(word => text.toLowerCase().includes(word))) {
+                    config[guildID].gpt.prompt = "";
+                    await voiceConnection.destroy();
+                    await interaction.channel.send("Successfully stopped listening.");
+                    await fs.writeFileSync(require.resolve('../../config.json'), JSON.stringify(config, null, 4));
+                    return;
+                }
                 try {
                     response = await runGPT(guildID, text);
                 } catch (error) {
@@ -155,6 +164,7 @@ const run = async (interaction, client) => {
                     inputType: StreamType.Arbitrary,
                     inlineVolume: true
                 });
+
                 if (voiceConnection.state.status !== VoiceConnectionStatus.Disconnected && voiceConnection.joinConfig.guildId === interaction.guildId) {
                     await voiceConnection.subscribe(audioPlayer);
                     await audioPlayer.play(audioResource);

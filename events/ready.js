@@ -26,8 +26,10 @@ const {promisify} = require("util");
 const glob = require("glob");
 const fs = require("fs");
 const globPromise = promisify(glob);
+const { AutoPoster } = require('topgg-autoposter')
 
 require('dotenv').config();
+
 
 const loadCommands = async (client) => {
     await client.commands.clear();
@@ -55,6 +57,10 @@ const loadCommands = async (client) => {
 
 const init = async (client) => {
     console.log("\x1b[35m%s\x1b[0m", `Ready! Logged in as ${client.user.username}.`)
+    //const ap = AutoPoster(process.env.TOGG_TOKEN, client)
+    /*await ap.on('posted', () => {
+        console.log(`Working in ${client.guilds.cache.size} guilds.`)
+    });*/
     await client.user.setPresence({
         status: 'idle',
     });
